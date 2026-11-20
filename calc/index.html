@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>Обменник CJ</title>
+<title>CJ Exchange</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
@@ -29,11 +29,12 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--fg);font:15px/1.4 var(--sans);
   padding:24px max(16px,env(safe-area-inset-right)) 48px max(16px,env(safe-area-inset-left))}
 .wrap{max-width:440px;margin:0 auto;display:grid;gap:16px}
-header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:0 4px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px}
 h1{font-size:20px;font-weight:700;letter-spacing:-.02em;margin:0}
 .live{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex:none}
 .live.on .dot{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.live button{border:0;padding:0 2px;font-size:14px;line-height:1;color:var(--accent)}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
 .slip{padding:16px;display:grid;gap:16px}
@@ -78,7 +79,7 @@ button:hover{border-color:var(--muted)}
 
 .ticket{background:var(--accent);color:var(--accent-fg);border-radius:var(--r);padding:20px 16px 16px;display:grid;gap:4px}
 .ticket .k{font-size:12px;font-weight:600;opacity:.8}
-.ticket .big{font-family:var(--sans);font-size:clamp(30px,9vw,40px);font-weight:600;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums;word-break:break-all}
+.ticket .big{font-size:clamp(30px,9vw,40px);font-weight:600;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums;word-break:break-all}
 .ticket .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;font-size:13px;opacity:.9}
 .ticket button{color:var(--accent-fg);border-color:currentColor}
 
@@ -86,7 +87,7 @@ button:hover{border-color:var(--muted)}
 .break div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
 .break div:last-child{border-bottom:0}
 .break span:first-child{color:var(--muted)}
-.break span:last-child{font-family:var(--sans);font-variant-numeric:tabular-nums;text-align:right}
+.break span:last-child{font-variant-numeric:tabular-nums;text-align:right}
 .break .fee span{color:var(--fee)}
 .break .bon span{color:var(--bonus)}
 .break .profit{padding-top:14px}
@@ -100,32 +101,32 @@ button:hover{border-color:var(--muted)}
 <body>
 <div class="wrap">
   <header>
-    <h1>Обменник CJ</h1>
-    <span class="live" id="live"><span class="dot"></span><span id="liveTxt">курс…</span></span>
+    <h1>CJ Exchange</h1>
+    <span class="live" id="live"><span class="dot"></span><span id="liveTxt">loading rates…</span><button type="button" id="refresh" aria-label="Refresh rates now" title="Refresh now">↻</button></span>
   </header>
 
   <form class="card slip" id="f" autocomplete="off">
     <div>
-      <label for="amount">Мне дают</label>
+      <label for="amount">Client gives</label>
       <div class="pair">
         <input id="amount" class="num" inputmode="decimal" value="1000">
-        <select id="from" aria-label="Валюта, которую дают"></select>
+        <select id="from" aria-label="Currency received"></select>
       </div>
     </div>
 
-    <div class="swaprow"><button type="button" id="swap" aria-label="Поменять валюты местами">⇅ поменять</button></div>
+    <div class="swaprow"><button type="button" id="swap" aria-label="Swap currencies">⇅ swap</button></div>
 
     <div>
-      <label for="rate">Курс · 1 <span id="rf">ILS</span> = ? <span id="rt">USD</span></label>
+      <label for="rate">Rate · 1 <span id="rf">ILS</span> = ? <span id="rt">USDT</span></label>
       <div class="pair">
         <input id="rate" class="num" inputmode="decimal">
-        <select id="to" aria-label="Валюта выплаты"></select>
+        <select id="to" aria-label="Payout currency"></select>
       </div>
       <div class="ratehint" id="ratehint"></div>
     </div>
 
     <div>
-      <span class="lbl" id="feeLbl">Мой процент</span>
+      <span class="lbl" id="feeLbl">My fee</span>
       <div class="pct">
         <div class="suffix"><input id="fee" class="num" inputmode="decimal" value="3" aria-labelledby="feeLbl"></div>
         <div class="chips" id="feeChips"></div>
@@ -133,11 +134,11 @@ button:hover{border-color:var(--muted)}
     </div>
 
     <div class="bonus">
-      <label class="toggle" for="bonusOn"><span>Бонус клиенту</span>
+      <label class="toggle" for="bonusOn"><span>Client bonus</span>
         <span class="sw"><input type="checkbox" id="bonusOn" role="switch"><i></i></span></label>
       <div class="bonusBody" id="bonusBody" hidden>
         <div class="pct">
-          <div class="suffix"><input id="bonus" class="num" inputmode="decimal" value="1" aria-label="Бонус клиенту, процент"></div>
+          <div class="suffix"><input id="bonus" class="num" inputmode="decimal" value="1" aria-label="Client bonus, percent"></div>
           <div class="chips" id="bonusChips"></div>
         </div>
       </div>
@@ -145,9 +146,9 @@ button:hover{border-color:var(--muted)}
   </form>
 
   <section class="ticket" aria-live="polite">
-    <div class="k">Отдаю клиенту</div>
+    <div class="k">Client receives</div>
     <div class="big" id="out">—</div>
-    <div class="foot"><span id="effRate"></span><button type="button" id="copy">Скопировать</button></div>
+    <div class="foot"><span id="effRate"></span><button type="button" id="copy">Copy</button></div>
   </section>
 
   <div class="card break" id="break"></div>
@@ -155,42 +156,55 @@ button:hover{border-color:var(--muted)}
   <p class="note" id="note"></p>
 </div>
 <script>
-// Fallback rates (USD base) — used only if both live sources fail
-const FALLBACK={USD:1,ILS:3.291625,EUR:0.908806,GBP:0.759742,RUB:81.831566,UAH:45.029192,TRY:50.467401,AED:3.672567,THB:33.899,CHF:0.84242,CAD:1.429328,JPY:159.873778,PLN:4.01703,GEL:2.591227,KZT:448.135368};
-const SYM={USD:"$",ILS:"₪",EUR:"€",GBP:"£",RUB:"₽",UAH:"₴",TRY:"₺",AED:"AED ",THB:"฿",CHF:"CHF ",CAD:"C$",JPY:"¥",PLN:"zł ",GEL:"₾",KZT:"₸"};
+// Fallback rates (per 1 USD) — used only if both live sources fail
+const FALLBACK={USDT:1,EUR:0.911,ILS:3.327,GBP:0.76,RUB:81.83,UAH:45.03,TRY:50.47,AED:3.6726,THB:33.9,CHF:0.8424,CAD:1.4293,JPY:159.87,PLN:4.017,GEL:2.5912,KZT:448.1};
+const SYM={ILS:"₪",EUR:"€",GBP:"£",RUB:"₽",UAH:"₴",TRY:"₺",AED:"AED ",THB:"฿",CHF:"CHF ",CAD:"C$",JPY:"¥",PLN:"zł ",GEL:"₾",KZT:"₸"};
 const CODES=Object.keys(FALLBACK);
-let USD={...FALLBACK},src="",updated=null,rateTouched=false;
+let RATES={...FALLBACK},src="",updated=null,rateTouched=false,loading=false;
 const REFRESH_MS=20*60*1000;
 const $=id=>document.getElementById(id);
 const from=$("from"),to=$("to"),amount=$("amount"),rate=$("rate"),fee=$("fee"),bonus=$("bonus"),bonusOn=$("bonusOn");
 for(const c of CODES){from.add(new Option(c,c));to.add(new Option(c,c));}
 const store={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}};
-from.value=store.get("from")||"ILS";to.value=store.get("to")||"USD";
+const pick=(v,d)=>CODES.includes(v)?v:d;
+from.value=pick(store.get("from"),"ILS");to.value=pick(store.get("to"),"USDT");
 if(store.get("fee"))fee.value=store.get("fee");
 if(store.get("bonus"))bonus.value=store.get("bonus");
 bonusOn.checked=store.get("bonusOn")==="1";
-const num=v=>parseFloat(String(v).replace(/\s/g,"").replace(",","."));
-const fmt=(v,c)=>(SYM[c]||"")+v.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2});
-const pctTxt=p=>(+p.toFixed(2)).toLocaleString("ru-RU")+"%";
-const marketRate=()=>USD[to.value]/USD[from.value];
-function setRate(){rate.value=+marketRate().toPrecision(6);rateTouched=false;}
+const num=v=>parseFloat(String(v).replace(/[\s,]/g,""));
+const fmt=(v,c)=>{const n=v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});return SYM[c]?SYM[c]+n:n+" "+c;};
+const pctTxt=p=>(+p.toFixed(2))+"%";
+const sig=v=>+v.toPrecision(6);
+const marketRate=()=>RATES[to.value]/RATES[from.value];
+function setRate(){rate.value=sig(marketRate());rateTouched=false;}
 function chips(box,input,list){list.forEach(p=>{const b=document.createElement("button");b.type="button";b.textContent=p+"%";b.dataset.p=p;
   b.onclick=()=>{input.value=p;input.dispatchEvent(new Event("input"));};$(box).append(b);});}
 chips("feeChips",fee,[1,2,3,5,10]);
 chips("bonusChips",bonus,[0.5,1,2,3]);
 async function getJSON(u){const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error(r.status);return r.json();}
 async function loadRates(){
+  if(loading)return;loading=true;$("liveTxt").textContent="updating…";
   try{
-    const d=await getJSON("https://api.coinbase.com/v2/exchange-rates?currency=USD");
-    const n={};for(const c of CODES)n[c]=c==="USD"?1:parseFloat(d.data.rates[c]);
-    if(CODES.every(c=>n[c]>0)){USD=n;src="Coinbase";updated=new Date();}else throw 0;
+    // Coinbase: fiat + USDT, per 1 USD
+    const d=await getJSON("https://api.coinbase.com/v2/exchange-rates?currency=USD&t="+Date.now());
+    const n={};for(const c of CODES)n[c]=parseFloat(d.data.rates[c]);
+    if(CODES.every(c=>n[c]>0)){RATES=n;src="Coinbase";updated=new Date();}else throw 0;
   }catch{
     try{const d=await getJSON("https://open.er-api.com/v6/latest/USD");
-      const n={};for(const c of CODES)n[c]=d.rates[c];
-      if(CODES.every(c=>n[c]>0)){USD=n;src="open.er-api";updated=new Date();}
+      const n={};for(const c of CODES)n[c]=c==="USDT"?1:d.rates[c]; // no USDT there: treat as 1 USD
+      if(CODES.every(c=>n[c]>0)){RATES=n;src="open.er-api (USDT ≈ USD)";updated=new Date();}
     }catch{}
   }
+  loading=false;
   if(!rateTouched)setRate();calc();
+}
+function liveLabel(){
+  if(loading)return;
+  if(!updated){$("live").classList.remove("on");$("liveTxt").textContent="offline · fallback rates";return;}
+  const t=updated.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  const left=Math.max(0,Math.ceil((REFRESH_MS-(Date.now()-updated))/60000));
+  $("live").classList.add("on");
+  $("liveTxt").textContent=`live ${t} · next in ${left} min`;
 }
 function calc(){
   const a=num(amount.value),r=num(rate.value),p=num(fee.value),bOn=bonusOn.checked,b=bOn?num(bonus.value):0;
@@ -198,27 +212,25 @@ function calc(){
   $("bonusBody").hidden=!bOn;
   document.querySelectorAll("#feeChips button").forEach(x=>x.setAttribute("aria-pressed",String(+x.dataset.p===p)));
   document.querySelectorAll("#bonusChips button").forEach(x=>x.setAttribute("aria-pressed",String(+x.dataset.p===b)));
-  const t=updated?updated.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}):null;
-  $("live").classList.toggle("on",!!t);
-  $("liveTxt").textContent=t?`живой курс · ${t}`:"запасной курс";
-  $("ratehint").innerHTML=rateTouched?`Курс вручную · <button type="button" id="reset">вернуть рыночный</button>`:
-    `Рыночный: 1 ${from.value} = ${+marketRate().toPrecision(6)} ${to.value}`;
+  liveLabel();
+  $("ratehint").innerHTML=rateTouched?`Manual rate · <button type="button" id="reset">use market rate</button>`:
+    `Market: 1 ${from.value} = ${sig(marketRate())} ${to.value}`;
   if(rateTouched)$("reset").onclick=()=>{setRate();calc();};
-  $("note").textContent=t?`Курс ${src}, обновляется каждые 20 минут. Процент и бонус считаются от суммы, которую дают.`:
-    "Нет связи с источником курса — стоит запасной. Можно вписать свой курс.";
+  $("note").textContent=updated?`Rates from ${src}, refreshed every 20 minutes. Fee and bonus are calculated on the amount the client gives.`:
+    "Can't reach the rate source — using fallback rates. You can type your own rate.";
   const bad=!(a>0)||!(r>0)||!(p>=0)||p>=100||!(b>=0)||b>=100;
   if(bad){$("out").textContent="—";$("effRate").textContent="";
-    $("break").innerHTML="<div><span>Введи сумму, курс и процент (меньше 100)</span><span></span></div>";return;}
+    $("break").innerHTML="<div><span>Enter amount, rate and fee (below 100%)</span><span></span></div>";return;}
   const feeAmt=a*p/100,bonAmt=a*b/100,net=a-feeAmt+bonAmt,pay=net*r,profit=feeAmt-bonAmt;
   $("out").textContent=fmt(pay,to.value);
-  $("effRate").textContent=`итоговый курс 1 ${from.value} = ${+(pay/a).toPrecision(6)} ${to.value}`;
+  $("effRate").textContent=`effective rate 1 ${from.value} = ${sig(pay/a)} ${to.value}`;
   $("break").innerHTML=
-    `<div><span>Получил</span><span>${fmt(a,from.value)}</span></div>`+
-    `<div class="fee"><span>Мой процент ${pctTxt(p)}</span><span>−${fmt(feeAmt,from.value)}</span></div>`+
-    (bOn?`<div class="bon"><span>Бонус клиенту ${pctTxt(b)}</span><span>+${fmt(bonAmt,from.value)}</span></div>`:"")+
-    `<div><span>К обмену</span><span>${fmt(net,from.value)}</span></div>`+
-    `<div><span>Курс</span><span>× ${+r.toPrecision(6)}</span></div>`+
-    `<div class="profit${profit<0?" neg":""}"><span>Мой заработок</span><span>${fmt(profit,from.value)} ≈ ${fmt(profit*r,to.value)}</span></div>`;
+    `<div><span>Received</span><span>${fmt(a,from.value)}</span></div>`+
+    `<div class="fee"><span>My fee ${pctTxt(p)}</span><span>−${fmt(feeAmt,from.value)}</span></div>`+
+    (bOn?`<div class="bon"><span>Client bonus ${pctTxt(b)}</span><span>+${fmt(bonAmt,from.value)}</span></div>`:"")+
+    `<div><span>To exchange</span><span>${fmt(net,from.value)}</span></div>`+
+    `<div><span>Rate</span><span>× ${sig(r)}</span></div>`+
+    `<div class="profit${profit<0?" neg":""}"><span>My profit</span><span>${fmt(profit,from.value)} ≈ ${fmt(profit*r,to.value)}</span></div>`;
 }
 const saveCur=()=>{store.set("from",from.value);store.set("to",to.value);};
 from.onchange=to.onchange=()=>{saveCur();setRate();calc();};
@@ -228,13 +240,15 @@ fee.oninput=()=>{store.set("fee",fee.value);calc();};
 bonus.oninput=()=>{store.set("bonus",bonus.value);calc();};
 bonusOn.onchange=()=>{store.set("bonusOn",bonusOn.checked?"1":"0");calc();};
 $("swap").onclick=()=>{[from.value,to.value]=[to.value,from.value];saveCur();setRate();calc();};
+$("refresh").onclick=loadRates;
 $("f").onsubmit=e=>e.preventDefault();
-$("copy").onclick=async()=>{const t=$("out").textContent;try{await navigator.clipboard.writeText(t);$("copy").textContent="Скопировано";}
-  catch{const s=getSelection(),rg=document.createRange();rg.selectNodeContents($("out"));s.removeAllRanges();s.addRange(rg);$("copy").textContent="Выделено";}
-  setTimeout(()=>$("copy").textContent="Скопировать",1500);};
+$("copy").onclick=async()=>{const t=$("out").textContent;try{await navigator.clipboard.writeText(t);$("copy").textContent="Copied";}
+  catch{const s=getSelection(),rg=document.createRange();rg.selectNodeContents($("out"));s.removeAllRanges();s.addRange(rg);$("copy").textContent="Selected";}
+  setTimeout(()=>$("copy").textContent="Copy",1500);};
 setRate();calc();loadRates();
-setInterval(loadRates,REFRESH_MS);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&(!updated||Date.now()-updated>REFRESH_MS))loadRates();});
+// Every 30 s: refresh rates once 20 minutes have passed (also survives the phone sleeping), otherwise tick the countdown
+setInterval(()=>{if(!updated||Date.now()-updated>=REFRESH_MS)loadRates();else liveLabel();},30000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&(!updated||Date.now()-updated>=REFRESH_MS))loadRates();});
 </script>
 </body>
 </html>
