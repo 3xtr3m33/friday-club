@@ -161,7 +161,7 @@ const FALLBACK={USDT:1,EUR:0.911,ILS:3.327,GBP:0.76,RUB:81.83,UAH:45.03,TRY:50.4
 const SYM={ILS:"₪",EUR:"€",GBP:"£",RUB:"₽",UAH:"₴",TRY:"₺",AED:"AED ",THB:"฿",CHF:"CHF ",CAD:"C$",JPY:"¥",PLN:"zł ",GEL:"₾",KZT:"₸"};
 const CODES=Object.keys(FALLBACK);
 let RATES={...FALLBACK},src="",updated=null,rateTouched=false,loading=false;
-const REFRESH_MS=20*60*1000;
+const REFRESH_MS=60*1000;
 const $=id=>document.getElementById(id);
 const from=$("from"),to=$("to"),amount=$("amount"),rate=$("rate"),fee=$("fee"),bonus=$("bonus"),bonusOn=$("bonusOn");
 for(const c of CODES){from.add(new Option(c,c));to.add(new Option(c,c));}
@@ -201,10 +201,9 @@ async function loadRates(){
 function liveLabel(){
   if(loading)return;
   if(!updated){$("live").classList.remove("on");$("liveTxt").textContent="offline · fallback rates";return;}
-  const t=updated.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
-  const left=Math.max(0,Math.ceil((REFRESH_MS-(Date.now()-updated))/60000));
+  const t=updated.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
   $("live").classList.add("on");
-  $("liveTxt").textContent=`live ${t} · next in ${left} min`;
+  $("liveTxt").textContent=`live · updated ${t}`;
 }
 function calc(){
   const a=num(amount.value),r=num(rate.value),p=num(fee.value),bOn=bonusOn.checked,b=bOn?num(bonus.value):0;
@@ -216,7 +215,7 @@ function calc(){
   $("ratehint").innerHTML=rateTouched?`Manual rate · <button type="button" id="reset">use market rate</button>`:
     `Market: 1 ${from.value} = ${sig(marketRate())} ${to.value}`;
   if(rateTouched)$("reset").onclick=()=>{setRate();calc();};
-  $("note").textContent=updated?`Rates from ${src}, refreshed every 20 minutes. Fee and bonus are calculated on the amount the client gives.`:
+  $("note").textContent=updated?`Rates from ${src}, refreshed every minute. Fee and bonus are calculated on the amount the client gives.`:
     "Can't reach the rate source — using fallback rates. You can type your own rate.";
   const bad=!(a>0)||!(r>0)||!(p>=0)||p>=100||!(b>=0)||b>=100;
   if(bad){$("out").textContent="—";$("effRate").textContent="";
@@ -246,8 +245,8 @@ $("copy").onclick=async()=>{const t=$("out").textContent;try{await navigator.cli
   catch{const s=getSelection(),rg=document.createRange();rg.selectNodeContents($("out"));s.removeAllRanges();s.addRange(rg);$("copy").textContent="Selected";}
   setTimeout(()=>$("copy").textContent="Copy",1500);};
 setRate();calc();loadRates();
-// Every 30 s: refresh rates once 20 minutes have passed (also survives the phone sleeping), otherwise tick the countdown
-setInterval(()=>{if(!updated||Date.now()-updated>=REFRESH_MS)loadRates();else liveLabel();},30000);
+// Every 5 s: refresh rates once a minute has passed (also survives the phone sleeping), otherwise tick the countdown
+setInterval(()=>{if(!updated||Date.now()-updated>=REFRESH_MS)loadRates();else liveLabel();},5000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&(!updated||Date.now()-updated>=REFRESH_MS))loadRates();});
 </script>
 </body>
