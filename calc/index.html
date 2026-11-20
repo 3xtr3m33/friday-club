@@ -179,7 +179,7 @@ const marketRate=()=>RATES[to.value]/RATES[from.value];
 function setRate(){rate.value=sig(marketRate());rateTouched=false;}
 function chips(box,input,list){list.forEach(p=>{const b=document.createElement("button");b.type="button";b.textContent=p+"%";b.dataset.p=p;
   b.onclick=()=>{input.value=p;input.dispatchEvent(new Event("input"));};$(box).append(b);});}
-chips("feeChips",fee,[1,2,3,5,10]);
+chips("feeChips",fee,[2,3,7]);
 chips("bonusChips",bonus,[0.5,1,2,3]);
 async function getJSON(u){const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error(r.status);return r.json();}
 async function loadRates(){
