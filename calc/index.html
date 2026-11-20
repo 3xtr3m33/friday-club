@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Обменник CJ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f4f5f3; --card:#ffffff; --field:#f4f5f3; --fg:#121a16; --muted:#66736c; --line:#e1e6e2;
+  --accent:#0d7a4e; --accent-fg:#ffffff; --accent-soft:#e3f1ea;
+  --fee:#b25418; --bonus:#5b4bd1; --shadow:0 1px 2px rgba(16,24,20,.04),0 8px 24px rgba(16,24,20,.05);
+  --sans:"Inter",system-ui,-apple-system,sans-serif;
+  --r:16px; --r-sm:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c110e; --card:#141b17; --field:#0f1512; --fg:#e9efea; --muted:#8f9d95; --line:#24302a;
+  --accent:#38c98a; --accent-fg:#05130c; --accent-soft:#16291f;
+  --fee:#f0955a; --bonus:#a99cff; --shadow:none; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c110e; --card:#141b17; --field:#0f1512; --fg:#e9efea; --muted:#8f9d95; --line:#24302a;
+  --accent:#38c98a; --accent-fg:#05130c; --accent-soft:#16291f;
+  --fee:#f0955a; --bonus:#a99cff; --shadow:none; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--fg);font:15px/1.4 var(--sans);
+  padding:24px max(16px,env(safe-area-inset-right)) 48px max(16px,env(safe-area-inset-left))}
+.wrap{max-width:440px;margin:0 auto;display:grid;gap:16px}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:0 4px}
+h1{font-size:20px;font-weight:700;letter-spacing:-.02em;margin:0}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.live.on .dot{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.slip{padding:16px;display:grid;gap:16px}
+label,.lbl{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.pair{display:grid;grid-template-columns:1fr 104px;gap:8px}
+input,select{font:inherit;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:12px;width:100%;min-width:0;appearance:none;-webkit-appearance:none}
+select{font-weight:600;padding-right:28px;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(-45deg,transparent 50%,var(--muted) 50%);
+  background-position:calc(100% - 16px) 52%,calc(100% - 11px) 52%;background-size:5px 5px;background-repeat:no-repeat}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.num{font-variant-numeric:tabular-nums;font-weight:500}
+#amount{font-size:24px;font-weight:600;padding:10px 12px}
+
+.swaprow{display:flex;align-items:center;gap:8px}
+.swaprow::before,.swaprow::after{content:"";flex:1;height:1px;background:var(--line)}
+button{font:inherit;cursor:pointer;color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+button:hover{border-color:var(--muted)}
+.ratehint{font-size:12px;color:var(--muted);margin-top:6px;min-height:16px}
+.ratehint button{border:0;padding:0;font-size:12px;color:var(--accent);font-weight:600}
+
+.pct{display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center}
+.suffix{position:relative}
+.suffix input{padding-right:28px;text-align:right}
+.suffix::after{content:"%";position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:600;pointer-events:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.pct>*,.pair>*{min-width:0}
+.chips button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.bonus .chips button[aria-pressed="true"]{background:var(--bonus);border-color:var(--bonus);color:#fff}
+
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;margin:0}
+.toggle span{font-size:12px;font-weight:600;color:var(--muted)}
+.sw{position:relative;width:40px;height:24px;flex:none}
+.sw input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.sw i{position:absolute;inset:0;border-radius:999px;background:var(--line);transition:background .15s}
+.sw i::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.sw input:checked+i{background:var(--bonus)}
+.sw input:checked+i::after{transform:translateX(16px)}
+.sw input:focus-visible+i{outline:2px solid var(--bonus);outline-offset:2px}
+.bonusBody{margin-top:12px}
+.bonusBody[hidden]{display:none}
+
+.ticket{background:var(--accent);color:var(--accent-fg);border-radius:var(--r);padding:20px 16px 16px;display:grid;gap:4px}
+.ticket .k{font-size:12px;font-weight:600;opacity:.8}
+.ticket .big{font-family:var(--sans);font-size:clamp(30px,9vw,40px);font-weight:600;letter-spacing:-.03em;line-height:1.1;font-variant-numeric:tabular-nums;word-break:break-all}
+.ticket .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;font-size:13px;opacity:.9}
+.ticket button{color:var(--accent-fg);border-color:currentColor}
+
+.break{padding:4px 16px}
+.break div{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.break div:last-child{border-bottom:0}
+.break span:first-child{color:var(--muted)}
+.break span:last-child{font-family:var(--sans);font-variant-numeric:tabular-nums;text-align:right}
+.break .fee span{color:var(--fee)}
+.break .bon span{color:var(--bonus)}
+.break .profit{padding-top:14px}
+.break .profit span:first-child{color:var(--fg);font-weight:600}
+.break .profit span:last-child{font-weight:600}
+.break .neg span:last-child{color:var(--fee)}
+.note{color:var(--muted);font-size:12px;line-height:1.5;margin:0;padding:0 4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Обменник CJ</h1>
+    <span class="live" id="live"><span class="dot"></span><span id="liveTxt">курс…</span></span>
+  </header>
+
+  <form class="card slip" id="f" autocomplete="off">
+    <div>
+      <label for="amount">Мне дают</label>
+      <div class="pair">
+        <input id="amount" class="num" inputmode="decimal" value="1000">
+        <select id="from" aria-label="Валюта, которую дают"></select>
+      </div>
+    </div>
+
+    <div class="swaprow"><button type="button" id="swap" aria-label="Поменять валюты местами">⇅ поменять</button></div>
+
+    <div>
+      <label for="rate">Курс · 1 <span id="rf">ILS</span> = ? <span id="rt">USD</span></label>
+      <div class="pair">
+        <input id="rate" class="num" inputmode="decimal">
+        <select id="to" aria-label="Валюта выплаты"></select>
+      </div>
+      <div class="ratehint" id="ratehint"></div>
+    </div>
+
+    <div>
+      <span class="lbl" id="feeLbl">Мой процент</span>
+      <div class="pct">
+        <div class="suffix"><input id="fee" class="num" inputmode="decimal" value="3" aria-labelledby="feeLbl"></div>
+        <div class="chips" id="feeChips"></div>
+      </div>
+    </div>
+
+    <div class="bonus">
+      <label class="toggle" for="bonusOn"><span>Бонус клиенту</span>
+        <span class="sw"><input type="checkbox" id="bonusOn" role="switch"><i></i></span></label>
+      <div class="bonusBody" id="bonusBody" hidden>
+        <div class="pct">
+          <div class="suffix"><input id="bonus" class="num" inputmode="decimal" value="1" aria-label="Бонус клиенту, процент"></div>
+          <div class="chips" id="bonusChips"></div>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <section class="ticket" aria-live="polite">
+    <div class="k">Отдаю клиенту</div>
+    <div class="big" id="out">—</div>
+    <div class="foot"><span id="effRate"></span><button type="button" id="copy">Скопировать</button></div>
+  </section>
+
+  <div class="card break" id="break"></div>
+
+  <p class="note" id="note"></p>
+</div>
+<script>
+// Fallback rates (USD base) — used only if both live sources fail
+const FALLBACK={USD:1,ILS:3.291625,EUR:0.908806,GBP:0.759742,RUB:81.831566,UAH:45.029192,TRY:50.467401,AED:3.672567,THB:33.899,CHF:0.84242,CAD:1.429328,JPY:159.873778,PLN:4.01703,GEL:2.591227,KZT:448.135368};
+const SYM={USD:"$",ILS:"₪",EUR:"€",GBP:"£",RUB:"₽",UAH:"₴",TRY:"₺",AED:"AED ",THB:"฿",CHF:"CHF ",CAD:"C$",JPY:"¥",PLN:"zł ",GEL:"₾",KZT:"₸"};
+const CODES=Object.keys(FALLBACK);
+let USD={...FALLBACK},src="",updated=null,rateTouched=false;
+const REFRESH_MS=20*60*1000;
+const $=id=>document.getElementById(id);
+const from=$("from"),to=$("to"),amount=$("amount"),rate=$("rate"),fee=$("fee"),bonus=$("bonus"),bonusOn=$("bonusOn");
+for(const c of CODES){from.add(new Option(c,c));to.add(new Option(c,c));}
+const store={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}};
+from.value=store.get("from")||"ILS";to.value=store.get("to")||"USD";
+if(store.get("fee"))fee.value=store.get("fee");
+if(store.get("bonus"))bonus.value=store.get("bonus");
+bonusOn.checked=store.get("bonusOn")==="1";
+const num=v=>parseFloat(String(v).replace(/\s/g,"").replace(",","."));
+const fmt=(v,c)=>(SYM[c]||"")+v.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2});
+const pctTxt=p=>(+p.toFixed(2)).toLocaleString("ru-RU")+"%";
+const marketRate=()=>USD[to.value]/USD[from.value];
+function setRate(){rate.value=+marketRate().toPrecision(6);rateTouched=false;}
+function chips(box,input,list){list.forEach(p=>{const b=document.createElement("button");b.type="button";b.textContent=p+"%";b.dataset.p=p;
+  b.onclick=()=>{input.value=p;input.dispatchEvent(new Event("input"));};$(box).append(b);});}
+chips("feeChips",fee,[1,2,3,5,10]);
+chips("bonusChips",bonus,[0.5,1,2,3]);
+async function getJSON(u){const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw new Error(r.status);return r.json();}
+async function loadRates(){
+  try{
+    const d=await getJSON("https://api.coinbase.com/v2/exchange-rates?currency=USD");
+    const n={};for(const c of CODES)n[c]=c==="USD"?1:parseFloat(d.data.rates[c]);
+    if(CODES.every(c=>n[c]>0)){USD=n;src="Coinbase";updated=new Date();}else throw 0;
+  }catch{
+    try{const d=await getJSON("https://open.er-api.com/v6/latest/USD");
+      const n={};for(const c of CODES)n[c]=d.rates[c];
+      if(CODES.every(c=>n[c]>0)){USD=n;src="open.er-api";updated=new Date();}
+    }catch{}
+  }
+  if(!rateTouched)setRate();calc();
+}
+function calc(){
+  const a=num(amount.value),r=num(rate.value),p=num(fee.value),bOn=bonusOn.checked,b=bOn?num(bonus.value):0;
+  $("rf").textContent=from.value;$("rt").textContent=to.value;
+  $("bonusBody").hidden=!bOn;
+  document.querySelectorAll("#feeChips button").forEach(x=>x.setAttribute("aria-pressed",String(+x.dataset.p===p)));
+  document.querySelectorAll("#bonusChips button").forEach(x=>x.setAttribute("aria-pressed",String(+x.dataset.p===b)));
+  const t=updated?updated.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}):null;
+  $("live").classList.toggle("on",!!t);
+  $("liveTxt").textContent=t?`живой курс · ${t}`:"запасной курс";
+  $("ratehint").innerHTML=rateTouched?`Курс вручную · <button type="button" id="reset">вернуть рыночный</button>`:
+    `Рыночный: 1 ${from.value} = ${+marketRate().toPrecision(6)} ${to.value}`;
+  if(rateTouched)$("reset").onclick=()=>{setRate();calc();};
+  $("note").textContent=t?`Курс ${src}, обновляется каждые 20 минут. Процент и бонус считаются от суммы, которую дают.`:
+    "Нет связи с источником курса — стоит запасной. Можно вписать свой курс.";
+  const bad=!(a>0)||!(r>0)||!(p>=0)||p>=100||!(b>=0)||b>=100;
+  if(bad){$("out").textContent="—";$("effRate").textContent="";
+    $("break").innerHTML="<div><span>Введи сумму, курс и процент (меньше 100)</span><span></span></div>";return;}
+  const feeAmt=a*p/100,bonAmt=a*b/100,net=a-feeAmt+bonAmt,pay=net*r,profit=feeAmt-bonAmt;
+  $("out").textContent=fmt(pay,to.value);
+  $("effRate").textContent=`итоговый курс 1 ${from.value} = ${+(pay/a).toPrecision(6)} ${to.value}`;
+  $("break").innerHTML=
+    `<div><span>Получил</span><span>${fmt(a,from.value)}</span></div>`+
+    `<div class="fee"><span>Мой процент ${pctTxt(p)}</span><span>−${fmt(feeAmt,from.value)}</span></div>`+
+    (bOn?`<div class="bon"><span>Бонус клиенту ${pctTxt(b)}</span><span>+${fmt(bonAmt,from.value)}</span></div>`:"")+
+    `<div><span>К обмену</span><span>${fmt(net,from.value)}</span></div>`+
+    `<div><span>Курс</span><span>× ${+r.toPrecision(6)}</span></div>`+
+    `<div class="profit${profit<0?" neg":""}"><span>Мой заработок</span><span>${fmt(profit,from.value)} ≈ ${fmt(profit*r,to.value)}</span></div>`;
+}
+const saveCur=()=>{store.set("from",from.value);store.set("to",to.value);};
+from.onchange=to.onchange=()=>{saveCur();setRate();calc();};
+rate.oninput=()=>{rateTouched=true;calc();};
+amount.oninput=calc;
+fee.oninput=()=>{store.set("fee",fee.value);calc();};
+bonus.oninput=()=>{store.set("bonus",bonus.value);calc();};
+bonusOn.onchange=()=>{store.set("bonusOn",bonusOn.checked?"1":"0");calc();};
+$("swap").onclick=()=>{[from.value,to.value]=[to.value,from.value];saveCur();setRate();calc();};
+$("f").onsubmit=e=>e.preventDefault();
+$("copy").onclick=async()=>{const t=$("out").textContent;try{await navigator.clipboard.writeText(t);$("copy").textContent="Скопировано";}
+  catch{const s=getSelection(),rg=document.createRange();rg.selectNodeContents($("out"));s.removeAllRanges();s.addRange(rg);$("copy").textContent="Выделено";}
+  setTimeout(()=>$("copy").textContent="Скопировать",1500);};
+setRate();calc();loadRates();
+setInterval(loadRates,REFRESH_MS);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&(!updated||Date.now()-updated>REFRESH_MS))loadRates();});
+</script>
+</body>
+</html>
