@@ -185,15 +185,23 @@ async function getJSON(u){const r=await fetch(u,{cache:"no-store"});if(!r.ok)thr
 async function loadRates(){
   if(loading)return;loading=true;$("liveTxt").textContent="updating…";
   try{
-    // Coinbase: fiat + USDT, per 1 USD
+    // Coinbase live spot, per 1 USDT (updates every minute)
+    const t=Date.now(),n={USDT:1};
+    await Promise.all(CODES.filter(c=>c!=="USDT").map(async c=>{
+      const d=await getJSON(`https://api.coinbase.com/v2/prices/USDT-${c}/spot?t=${t}`);n[c]=parseFloat(d.data.amount);}));
+    if(CODES.every(c=>n[c]>0)){RATES=n;src="Coinbase spot";updated=new Date();}else throw 0;
+  }catch{
+   try{
+    // Coinbase daily reference rates, per 1 USD (slow-moving backup)
     const d=await getJSON("https://api.coinbase.com/v2/exchange-rates?currency=USD&t="+Date.now());
     const n={};for(const c of CODES)n[c]=parseFloat(d.data.rates[c]);
-    if(CODES.every(c=>n[c]>0)){RATES=n;src="Coinbase";updated=new Date();}else throw 0;
-  }catch{
+    if(CODES.every(c=>n[c]>0)){RATES=n;src="Coinbase reference";updated=new Date();}else throw 0;
+   }catch{
     try{const d=await getJSON("https://open.er-api.com/v6/latest/USD");
       const n={};for(const c of CODES)n[c]=c==="USDT"?1:d.rates[c]; // no USDT there: treat as 1 USD
       if(CODES.every(c=>n[c]>0)){RATES=n;src="open.er-api (USDT ≈ USD)";updated=new Date();}
     }catch{}
+   }
   }
   loading=false;
   if(!rateTouched)setRate();calc();
